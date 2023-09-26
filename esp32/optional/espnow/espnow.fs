@@ -36,5 +36,8 @@ $3000 constant ESP_ERR_MESH_BASE          \ Starting number of MESH error codes
 $6000 constant ESP_ERR_FLASH_BASE         \ Starting number of flash error codes
 $c000 constant ESP_ERR_HW_CRYPTO_BASE     \ Starting number of HW cryptography module error codes
 $d000 constant ESP_ERR_MEMPROT_BASE       \ Starting number of Memory Protection API error codes
+: ESP_ERROR_CHECK ( err -- )
+  ESP_OK <> throw
+;
 [THEN]
 forth definitions
