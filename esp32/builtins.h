@@ -92,6 +92,14 @@
 #  define OPTIONAL_ESPNOW_SUPPORT
 # endif
 
+// Hook to pull in optional WDTS support.
+# if __has_include("wdts.h")
+#  include "wdts.h"
+# else
+#  define OPTIONAL_WDTS_VOCABULARY
+#  define OPTIONAL_WDTS_SUPPORT
+# endif
+
 static cell_t ResizeFile(cell_t fd, cell_t size);
 
 #endif
@@ -128,7 +136,8 @@ static cell_t ResizeFile(cell_t fd, cell_t size);
   OPTIONAL_RMT_SUPPORT \
   OPTIONAL_SERIAL_BLUETOOTH_SUPPORT \
   OPTIONAL_SPI_FLASH_SUPPORT \
-  OPTIONAL_ESPNOW_SUPPORT
+  OPTIONAL_ESPNOW_SUPPORT \
+  OPTIONAL_WDTS_SUPPORT
 
 #define REQUIRED_MEMORY_SUPPORT \
   YV(internals, MALLOC, SET malloc(n0)) \

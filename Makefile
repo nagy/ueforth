@@ -362,6 +362,11 @@ $(GEN)/esp32_espnow.h: \
 	$< espnow_source $(VERSION) $(REVISION) \
     esp32/optional/espnow/espnow.fs >$@
 
+$(GEN)/esp32_wdts.h: \
+    tools/source_to_string.js esp32/optional/wdts/wdts.fs | $(GEN)
+	$< wdts_source $(VERSION) $(REVISION) \
+    esp32/optional/wdts/wdts.fs >$@
+
 $(GEN)/esp32_serial-bluetooth.h: \
     tools/source_to_string.js \
     esp32/optional/serial-bluetooth/bterm.fs \
@@ -378,7 +383,8 @@ OPTIONAL_MODULES = \
   $(ESP32)/ESP32forth/rmt.h \
   $(ESP32)/ESP32forth/serial-bluetooth.h \
   $(ESP32)/ESP32forth/spi-flash.h \
-  $(ESP32)/ESP32forth/espnow.h
+  $(ESP32)/ESP32forth/espnow.h \
+  $(ESP32)/ESP32forth/wdts.h
 
 add-optional: $(OPTIONAL_MODULES)
 
@@ -731,6 +737,15 @@ $(ESP32)/ESP32forth/optional/espnow.h: \
      espnow=@$(GEN)/esp32_espnow.h \
      >$@
 
+$(ESP32)/ESP32forth/optional/wdts.h: \
+    esp32/optional/wdts/wdts.h \
+    $(GEN)/esp32_wdts.h | $(ESP32)/ESP32forth/optional
+	cat esp32/optional/wdts/wdts.h | tools/replace.js \
+     VERSION=$(VERSION) \
+     REVISION=$(REVISION) \
+     wdts=@$(GEN)/esp32_wdts.h \
+     >$@
+
 # ---- ESP32 ARDUINO BUILD AND FLASH ----
 
 LOCALAPPDATA=$(subst C:/,/mnt/c/,$(subst \,/,$(shell cmd.exe /c echo %LOCALAPPDATA%)))
@@ -888,7 +903,8 @@ $(ESP32)/ESP32forth.zip: \
     $(ESP32)/ESP32forth/optional/rmt.h \
     $(ESP32)/ESP32forth/optional/serial-bluetooth.h \
     $(ESP32)/ESP32forth/optional/spi-flash.h \
-    $(ESP32)/ESP32forth/optional/espnow.h
+    $(ESP32)/ESP32forth/optional/espnow.h \
+    $(ESP32)/ESP32forth/optional/wdts.h
 	cd $(ESP32) && rm -f ESP32forth.zip && zip -r ESP32forth.zip ESP32forth
 
 # ---- PACKAGE pico-ice ----
