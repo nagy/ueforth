@@ -18,6 +18,7 @@ These are the current optional modules:
   * spi-flash.h - Support for low level SPI Flash partition access
   * http-client.h - Support for HTTP/HTTPS
   * espnow.h - Support for ESP NOW
+  * wdts.h - Support for WDTS
 
 Initially ESP32forth focused on a minimal C kernel, with most functionality
 built in Forth code loaded at boot. Eventually, as support for more capabilities

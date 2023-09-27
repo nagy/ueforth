@@ -57,3 +57,7 @@ internals DEFINED? HTTPClient-builtins [IF]
 internals DEFINED? espnow-source [IF]
   espnow-source evaluate
 [THEN] forth
+
+internals DEFINED? wdts-source [IF]
+  wdts-source evaluate
+[THEN] forth
