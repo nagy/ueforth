@@ -41,7 +41,7 @@ also ledc also serial also SPIFFS
 : pin ( n pin# -- ) swap digitalWrite ;
 : adc ( n -- n ) analogRead ;
 
-( Basic Ardiuno Constants )
+( Basic Arduino Constants )
 0 constant LOW
 1 constant HIGH
 1 constant INPUT

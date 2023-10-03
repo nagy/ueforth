@@ -61,7 +61,7 @@ static esp_err_t EspnowRegisterCb(cell_t xt) {
   YV(espnow, espnow_init    , PUSH esp_now_init()) \
   YV(espnow, espnow_deinit  , PUSH esp_now_deinit()) \
   YV(espnow, espnow_add_peer, n0 = ESPNOW_add_peer(b0)) \
-  YV(espnow, espnow_del_peer, n0 = ESPNOW_del_peer(b0)) \
+  YV(espnow, espnow_del_peer, n0 = esp_now_del_peer(b0)) \
   YV(espnow, espnow_send    , n0 = esp_now_send(b2, b1, n0); NIPn(2)) \
   YV(espnow, espnow_register_recv_cb , espnow_recv_cb_xt = n0; n0 = esp_now_register_recv_cb(HandleRecv))  \
   YV(espnow, espnow_unregister_recv_cb , PUSH esp_now_unregister_recv_cb())  \

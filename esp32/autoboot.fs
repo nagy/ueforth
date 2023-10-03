@@ -25,11 +25,15 @@ internals definitions
 ( Check for autoexec.fs and run if present.
   Failing that, try to revive save image. )
 : autoexec
-   ( Allow skip start files if key hit within 100 ms )
-   10 for key? if rdrop exit then 10 ms next
-   s" /spiffs/autoexec.fs" 2dup file-exists?
-     if included else 2drop then
-   ['] revive catch drop ;
+  also wifi
+  r| also wdts | evaluate
+  r| wifi_mode_sta wifi.mode | evaluate
+  r| z" cjdns-q" 0 wifi.begin | evaluate
+  r| wifisetpsnone drop | evaluate \ powersave
+  r| $6503a8c0 $0103a8c0 $00ffffff 0 wifi.config | evaluate
+  \ r| hear-init | evaluate
+  \ r| hear-loop | evaluate
+;
 ' autoexec ( leave on the stack for fini.fs )
 
 forth definitions

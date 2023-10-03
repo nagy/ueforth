@@ -35,3 +35,9 @@ espnow_init ESP_OK <> throw
   0 here 10 - 10
   espnow_send ESP_OK <> throw
 ;
+
+: foo
+  ." hello in recv " cr
+;
+
+' foo espnow_register_recv_cb ESP_ERROR_CHECK

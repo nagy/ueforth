@@ -1,56 +1,75 @@
 #! /usr/bin/env ueforth
 
-also sockets
-also tasks
+also sockets also tasks
 
 1024 constant max-msg
 create msg max-msg allot
-variable len max-msg len !
+create resp 10 max-msg * allot
+variable outoffset 0 outoffset !
+variable evalfin 0 evalfin !
 -1 value sockfd
-
 sockaddr incoming
-sockaddr outgoing
-
 sockaddr received
 variable received-len sizeof(sockaddr_in) received-len !
+create readd cell allot 0 readd !
 
-: reader
-    begin
-        sockfd msg len 0 received received-len recvfrom
-        dup 0 >= if
-          received ->addr@ ip. ." :" received ->port@ . space space msg swap type cr
-        else drop then
-        pause
-    again
+\ types into msgout buffer instead of on the terminal
+internals \ for cmove
+: resp-type ( a n -- )
+  2dup \ debug
+  resp outoffset @ + swap cmove
+  dup outoffset @ + outoffset !
+  serial-type \ debug
+;
+' resp-type is type
+
+: reader ( -- )
+  begin
+    sockfd msg max-msg 0 received received-len recvfrom
+    dup 0 >= if
+      readd !
+    else drop then
+    pause
+  again
 ;
 ' reader 10 10 task reader-task
 
-: udp ( port -- )
-  incoming ->port!
+: sender ( -- )
+  begin
+    evalfin @ 1 = if
+      sockfd resp outoffset @ 0 received sizeof(sockaddr_in) sendto drop
+      0 evalfin !
+    then
+    pause
+  again
+;
+' sender 10 10 task sender-task
+
+: udp ( -- )
+  1 incoming ->port!
   AF_INET SOCK_DGRAM 0 socket to sockfd
   sockfd non-block throw
   sockfd incoming sizeof(sockaddr_in) bind throw
+;
+
+: hear-init ( -- )
   reader-task start-task
+  sender-task start-task
+  begin 1000 ms ['] udp catch -1 = until
 ;
 
-: say ( port -- "host" )
-  bl parse s>z gethostbyname ->h_addr outgoing ->addr!
-  outgoing ->port!
-  sockfd tib >in @ + #tib @ >in @ - 
-    0 outgoing sizeof(sockaddr_in) sendto drop
-  #tib @ >in !
+: hear-1  ( -- )
+  readd @ 0 > if
+    0 outoffset !
+    msg readd @ evaluate
+    0 readd !
+    1 evalfin !
+  then
 ;
 
-: hear begin pause again ;
-
-: help
-  ." USAGE INSTRUCTIONS" cr
-  ." ------------------" cr
-  ." <port> udp ( open UDP connection on port )" cr
-  ." hear ( wait for messages on udp port and print then )" cr
-  ." <port> say <host> <message text> ( send a message to a port )" cr
-  cr
-  ." Example: 9999 udp hear ( listener )" cr
-  ." Example: 9998 udp 9999 say localhost Can you hear me? ( sender )" cr
+: hear-loop ( -- )
+  0 readd !
+  begin ['] hear-1 catch drop pause again
 ;
-help quit
+
+hear
