@@ -44,7 +44,7 @@ also ledc also serial also SPIFFS
 : freq ( n n -- ) 1000 * 13 ledcSetup drop ;
 : tone ( n n -- ) 1000 * ledcWriteTone drop ;
 
-( Basic Ardiuno Constants )
+( Basic Arduino Constants )
 0 constant LOW
 1 constant HIGH
 1 constant INPUT

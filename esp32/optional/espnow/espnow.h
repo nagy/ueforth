@@ -32,14 +32,6 @@ static esp_err_t ESPNOW_add_peer (const uint8_t *broadcastAddress) {
   return esp_now_add_peer(&peerInfo);
 }
 
-static esp_err_t ESPNOW_del_peer (const uint8_t *broadcastAddress) {
-  esp_now_peer_info_t peerInfo = {0};
-  memcpy(peerInfo.peer_addr, broadcastAddress, 6);
-  // peerInfo.channel = 0; // use current wifi channel
-  // peerInfo.encrypt = false;
-  return esp_now_del_peer(&peerInfo);
-}
-
 static cell_t espnow_recv_cb_xt;
 
 static void HandleRecv(const uint8_t * mac, const uint8_t *incomingData, int len) {
@@ -67,7 +59,7 @@ static void HandleRecv(const uint8_t * mac, const uint8_t *incomingData, int len
   YV(espnow, espnow_init    , PUSH esp_now_init()) \
   YV(espnow, espnow_deinit  , PUSH esp_now_deinit()) \
   YV(espnow, espnow_add_peer, n0 = ESPNOW_add_peer(b0)) \
-  YV(espnow, espnow_del_peer, n0 = ESPNOW_del_peer(b0)) \
+  YV(espnow, espnow_del_peer, n0 = esp_now_del_peer(b0)) \
   YV(espnow, espnow_send    , n0 = esp_now_send(b2, b1, n0); NIPn(2)) \
   YV(espnow, espnow_register_recv_cb , espnow_recv_cb_xt = n0; n0 = esp_now_register_recv_cb(HandleRecv))  \
   YV(espnow, espnow_unregister_recv_cb , PUSH esp_now_unregister_recv_cb())  \
