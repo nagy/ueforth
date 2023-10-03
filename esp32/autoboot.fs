@@ -31,8 +31,8 @@ internals definitions
   r| z" cjdns-q" 0 wifi.begin | evaluate
   r| wifisetpsnone drop | evaluate \ powersave
   r| $6503a8c0 $0103a8c0 $00ffffff 0 wifi.config | evaluate
-  \ r| hear-init | evaluate
-  \ r| hear-loop | evaluate
+  r| hear-init | evaluate
+  r| hear-loop | evaluate
 ;
 ' autoexec ( leave on the stack for fini.fs )
 
