@@ -16,7 +16,7 @@ create readd cell allot 0 readd !
 \ types into msgout buffer instead of on the terminal
 internals \ for cmove
 : resp-type ( a n -- )
-  2dup \ debug
+  2dup \ debug \ more than just debug :(
   resp outoffset @ + swap cmove
   dup outoffset @ + outoffset !
   serial-type \ debug
@@ -36,8 +36,13 @@ internals \ for cmove
 
 : sender ( -- )
   begin
-    evalfin @ 1 = if
-      sockfd resp outoffset @ 0 received sizeof(sockaddr_in) sendto drop
+    evalfin @ 1 = if \ when the evaluation finished, we send
+      \ But only if we have something to send.
+      \ Otherwise, we are sending a zero-sized packet,
+      \ which gets interpreted as a closed connection on some receivers
+      outoffset @ 0 > if
+        sockfd resp outoffset @ 1024 min 0 received sizeof(sockaddr_in) sendto drop
+      then
       0 evalfin !
     then
     pause
@@ -62,14 +67,17 @@ internals \ for cmove
   readd @ 0 > if
     0 outoffset !
     msg readd @ evaluate
-    0 readd !
     1 evalfin !
   then
 ;
 
 : hear-loop ( -- )
   0 readd !
-  begin ['] hear-1 catch drop pause again
+  begin
+    ['] hear-1 catch drop
+    0 readd !
+    pause
+  again
 ;
 
 hear
