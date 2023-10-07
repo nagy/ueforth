@@ -16,21 +16,27 @@ vocabulary wdts   wdts definitions
 transfer wdts-builtins
 DEFINED? wdts_init [IF]
 
-also sockets also tasks
+also sockets
+also tasks
+also internals \ for cmove
 
 1024 constant max-msg
 create msg max-msg allot
 create resp 10 max-msg * allot
 variable outoffset 0 outoffset !
-variable evalfin 0 evalfin !
 -1 value sockfd
 sockaddr incoming
 sockaddr received
 variable received-len sizeof(sockaddr_in) received-len !
 create readd cell allot 0 readd !
 
+\ evaluation finished
+variable evalfin 0 evalfin !
+: is-eval-done ( -- n ) evalfin @ 1 = ;
+: make-eval-done ( -- ) 1 evalfin ! ;
+: make-eval-undone ( -- ) 0 evalfin ! ;
+
 \ types into msgout buffer instead of on the terminal
-internals \ for cmove
 : resp-type ( a n -- )
   2dup \ debug \ more than just debug :(
   resp outoffset @ + swap cmove
@@ -46,24 +52,22 @@ internals \ for cmove
       readd !
     else drop then
     pause
-  again
-;
+  again ;
 ' reader 10 10 task reader-task
 
 : sender ( -- )
   begin
-    evalfin @ 1 = if \ when the evaluation finished, we send
+    is-eval-done if \ when the evaluation finished, we send
       \ But only if we have something to send.
       \ Otherwise, we are sending a zero-sized packet,
       \ which gets interpreted as a closed connection on some receivers
       outoffset @ 0 > if
         sockfd resp outoffset @ 1024 min 0 received sizeof(sockaddr_in) sendto drop
       then
-      0 evalfin !
+      make-eval-undone
     then
     pause
-  again
-;
+  again ;
 ' sender 10 10 task sender-task
 
 : udp ( -- )
@@ -71,22 +75,19 @@ internals \ for cmove
   AF_INET SOCK_DGRAM 0 socket to sockfd
   sockfd non-block throw
   sockfd incoming sizeof(sockaddr_in) bind throw
-  -1 throw
-;
+  -1 throw ;
 
 : hear-init ( -- )
   reader-task start-task
   sender-task start-task
-  begin 1000 ms ['] udp catch -1 = until
-;
+  begin 1000 ms ['] udp catch -1 = until ;
 
 : hear-1 ( -- )
   readd @ 0 > if
     0 outoffset !
     msg readd @ evaluate
-    1 evalfin !
-  then
-;
+    make-eval-done
+  then ;
 
 : hear-loop ( -- )
   0 readd !
@@ -94,8 +95,7 @@ internals \ for cmove
     ['] hear-1 catch drop
     0 readd !
     pause
-  again
-;
+  again ;
 
 [THEN]
 forth definitions
