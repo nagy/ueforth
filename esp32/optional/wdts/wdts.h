@@ -149,6 +149,7 @@ static void WiFiEvent(WiFiEvent_t event){
   YV(wdts, udp_send, n0 = clientudp.write(b1, n0); NIP) \
   YV(wdts, udp_endpacket, PUSH clientudp.endPacket()) \
   YV(wdts, tcp_client_connect, n0 = client.connect(n1, n0); NIP) \
+  YV(wdts, tcp_client_available, PUSH client.available()) \
   YV(wdts, tcp_client_nodelay, n0 = client.setNoDelay(n0)) \
   YV(wdts, tcp_client_stop, client.stop()) \
   YV(wdts, tcp_client_flush, client.flush()) \
