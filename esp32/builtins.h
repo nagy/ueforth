@@ -175,6 +175,8 @@ static cell_t ResizeFile(cell_t fd, cell_t size);
   YV(ESP, deepSleep, ESP.deepSleep(tos); DROP) \
   YV(ESP, getEfuseMac, PUSH (cell_t) ESP.getEfuseMac(); PUSH (cell_t) (ESP.getEfuseMac() >> 32)) \
   YV(ESP, esp_log_level_set, esp_log_level_set(c1, (esp_log_level_t) n0); DROPn(2)) \
+  YV(ESP, esp_read_mac_cell, { uint8_t baseMac[6]; esp_read_mac(baseMac, ESP_MAC_WIFI_STA); PUSH ((baseMac[2]<<24)|(baseMac[3]<<16)|(baseMac[4]<<8)|(baseMac[5]));}) \
+  YV(ESP, esp_read_mac_cell_inverted, { uint8_t baseMac[6]; esp_read_mac(baseMac, ESP_MAC_WIFI_STA); PUSH ((baseMac[5]<<24)|(baseMac[4]<<16)|(baseMac[3]<<8)|(baseMac[2]));}) \
   YV(ESP, esp_read_mac, { uint8_t baseMac[6]; esp_read_mac(baseMac, ESP_MAC_WIFI_STA); PUSH baseMac[0]; PUSH baseMac[1]; PUSH baseMac[2]; PUSH baseMac[3]; PUSH baseMac[4]; PUSH baseMac[5];})
 
 #define REQUIRED_SYSTEM_SUPPORT \
