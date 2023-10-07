@@ -30,7 +30,9 @@ internals definitions
   r| wifi_mode_sta wifi.mode | evaluate
   r| z" cjdns-q" 0 wifi.begin | evaluate
   r| wifisetpsnone drop | evaluate \ powersave
-  r| $6503a8c0 $0103a8c0 $00ffffff 0 wifi.config | evaluate
+  r| also ESP esp_read_mac >r drop drop drop drop drop r> | evaluate
+  r| 24 lshift $0003a8c0 or | evaluate
+  r| $0103a8c0 $00ffffff 0 wifi.config | evaluate
   r| hear-init | evaluate
   r| hear-loop | evaluate
 ;
