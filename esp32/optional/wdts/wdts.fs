@@ -19,6 +19,7 @@ DEFINED? wdts_init [IF]
 also sockets
 also tasks
 also internals \ for cmove
+also ESP \ for esp_read_mac_cell
 
 1024 constant max-msg
 create msg max-msg allot
@@ -29,13 +30,31 @@ sockaddr incoming
 sockaddr received
 variable received-len sizeof(sockaddr_in) received-len !
 create readd cell allot 0 readd !
-defer handle-message
 
 \ evaluation finished
 variable evalfin 0 evalfin !
 : is-eval-done ( -- n ) evalfin @ 1 = ;
 : make-eval-done ( -- ) 1 evalfin ! ;
 : make-eval-undone ( -- ) 0 evalfin ! ;
+
+defer sendto-target
+: simple-sendto-target ( a n -- )
+  \ We send only if we have something to send.
+  \ Otherwise, we are sending a zero-sized packet,
+  \ which gets interpreted as a closed connection on some receivers
+  \ Also we send at most 1024 bytes.
+  dup 0 > if
+    1024 min >r \ n onto r-stack
+    >r \ a onto r-stack
+    sockfd r> ( a ) r> ( n ) 0 ( flag ) received sizeof(sockaddr_in) sendto drop
+  else 2drop then ;
+' simple-sendto-target is sendto-target
+
+: receiver-mac ( -- n ) \ partial mac only
+  msg 2 + @ ;
+
+: is-my-mac ( -- n )
+  receiver-mac esp_read_mac_cell_inverted = ;
 
 \ types into msgout buffer instead of on the terminal
 : resp-type ( a n -- )
@@ -59,12 +78,7 @@ variable evalfin 0 evalfin !
 : sender ( -- )
   begin
     is-eval-done if \ when the evaluation finished, we send
-      \ But only if we have something to send.
-      \ Otherwise, we are sending a zero-sized packet,
-      \ which gets interpreted as a closed connection on some receivers
-      outoffset @ 0 > if
-        sockfd resp outoffset @ 1024 min 0 received sizeof(sockaddr_in) sendto drop
-      then
+      resp outoffset @ sendto-target
       make-eval-undone
     then
     pause
@@ -83,16 +97,31 @@ variable evalfin 0 evalfin !
   sender-task start-task
   begin 1000 ms ['] udp catch -1 = until ;
 
-: hear-1 ( -- )
-    0 outoffset !
-    msg readd @ evaluate
-    make-eval-done ;
-' hear-1 is handle-message
+defer handle-message
+\ : hear-simple ( -- )
+\     0 outoffset !
+\     msg readd @ evaluate
+\     make-eval-done ;
+\ ' hear-simple is handle-message
+: hear-addressed ( -- )
+  0 outoffset !
+  is-my-mac if
+    msg 6 +
+    readd @ 6 -
+    evaluate
+    make-eval-done
+  else
+    \ look into routing table and forward
+    receiver-mac esp_read_mac_cell_inverted <> if
+
+      then
+  then ;
+' hear-addressed is handle-message
 
 : hear-loop ( -- )
   0 readd !
   begin
-    readd @ 0 > if
+    readd @ 6 > if
       ['] handle-message catch drop
       0 readd !
     then
