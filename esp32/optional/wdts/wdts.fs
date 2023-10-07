@@ -29,6 +29,7 @@ sockaddr incoming
 sockaddr received
 variable received-len sizeof(sockaddr_in) received-len !
 create readd cell allot 0 readd !
+defer handle-message
 
 \ evaluation finished
 variable evalfin 0 evalfin !
@@ -83,17 +84,18 @@ variable evalfin 0 evalfin !
   begin 1000 ms ['] udp catch -1 = until ;
 
 : hear-1 ( -- )
-  readd @ 0 > if
     0 outoffset !
     msg readd @ evaluate
-    make-eval-done
-  then ;
+    make-eval-done ;
+' hear-1 is handle-message
 
 : hear-loop ( -- )
   0 readd !
   begin
-    ['] hear-1 catch drop
-    0 readd !
+    readd @ 0 > if
+      ['] handle-message catch drop
+      0 readd !
+    then
     pause
   again ;
 
