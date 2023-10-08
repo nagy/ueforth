@@ -25,13 +25,20 @@
 #define HEAP_SIZE (10 * 1024 * 1024)
 #define STACK_CELLS (8 * 1024)
 
+# if __has_include("userwords.h")
+#  include "userwords.h"
+# else
+#  define USER_WORDS
+# endif
+
 // NOTE: errno implemented as opcode to avoid a Linux platform dependency.
 
 #define PLATFORM_OPCODE_LIST \
   Y(DLSYM, tos = (cell_t) dlsym(a1 ? a1 : RTLD_DEFAULT, c0); NIP) \
   XV(internals, "errno", ERRNO_INTERNAL, DUP; tos = (cell_t) errno) \
   CALLING_OPCODE_LIST \
-  FLOATING_POINT_LIST
+  FLOATING_POINT_LIST \
+  USER_WORDS
 
 #define VOCABULARY_LIST V(forth) V(internals)
 
