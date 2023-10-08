@@ -24,12 +24,9 @@
 #include <esp_wifi.h>
 
 #include <WiFi.h>
-static WiFiClient client;
-static WiFiUDP clientudp;
 
 static void WiFiEvent(WiFiEvent_t event){
     Serial.printf("[WiFi-event] event: %d\n", event);
-
     switch (event) {
         case ARDUINO_EVENT_WIFI_READY:
             Serial.println("WiFi interface ready");
@@ -117,15 +114,6 @@ static void WiFiEvent(WiFiEvent_t event){
     }
 }
 
-/* static size_t CLIENTUDPWRITE(const uint8_t *buffer, size_t size) { */
-/*   /\* clientudp.beginPacket( {192, 168, 3, 1}, 8888 ); *\/ */
-/*   size_t ret = clientudp.write(buffer, size); */
-/*   /\* if ( !clientudp.endPacket() ) { *\/ */
-/*   /\*   Serial.println("NOT SENT!"); *\/ */
-/*   /\* } *\/ */
-/*   return ret; */
-/* } */
-
 #define OPTIONAL_WDTS_VOCABULARY V(wdts)
 #define OPTIONAL_WDTS_SUPPORT \
   XV(internals, "wdts-source", WDTS_SOURCE, \
@@ -144,16 +132,6 @@ static void WiFiEvent(WiFiEvent_t event){
   YV(wdts, wifisetpsnone, PUSH esp_wifi_set_ps(WIFI_PS_NONE)) \
   YV(wdts, wifisetpsmin, PUSH esp_wifi_set_ps(WIFI_PS_MIN_MODEM)) \
   YV(wdts, wifisetpsmax, PUSH esp_wifi_set_ps(WIFI_PS_MAX_MODEM)) \
-  YV(wdts, udp_begin, n0 = clientudp.begin(n1, n0); NIP) \
-  YV(wdts, udp_beginpacket, n0 = clientudp.beginPacket(n1, n0); NIP) \
-  YV(wdts, udp_send, n0 = clientudp.write(b1, n0); NIP) \
-  YV(wdts, udp_endpacket, PUSH clientudp.endPacket()) \
-  YV(wdts, tcp_client_connect, n0 = client.connect(n1, n0); NIP) \
-  YV(wdts, tcp_client_available, PUSH client.available()) \
-  YV(wdts, tcp_client_nodelay, n0 = client.setNoDelay(n0)) \
-  YV(wdts, tcp_client_stop, client.stop()) \
-  YV(wdts, tcp_client_flush, client.flush()) \
-  YV(wdts, tcp_client_write, n0 = client.write(b1, n0); NIP) \
 
 
 {{wdts}}
