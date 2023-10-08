@@ -55,3 +55,7 @@ internals DEFINED? espnow-source [IF]
 internals DEFINED? wdts-source [IF]
   wdts-source evaluate
 [THEN] forth
+
+internals DEFINED? user-source [IF]
+  user-source evaluate
+[THEN] forth

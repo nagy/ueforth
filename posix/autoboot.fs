@@ -12,6 +12,10 @@
 \ See the License for the specific language governing permissions and
 \ limitations under the License.
 
+internals DEFINED? user-source [IF]
+  user-source evaluate
+[THEN] forth
+
 ( Include first argument if any )
 internals definitions
 : autoexec
