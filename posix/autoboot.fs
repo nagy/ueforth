@@ -16,13 +16,15 @@ internals DEFINED? user-source [IF]
   user-source evaluate
 [THEN] forth
 
+
 ( Include first argument if any )
 internals definitions
+also user
 : autoexec
+   user-init
    ( Open passed file if any. )
    argc 2 >= if 1 argv ['] included catch if 1 terminate then exit then
    ( Open remembered file if any. )
-   ['] revive catch drop
-;
+   ['] revive catch drop ;
 ' autoexec ( leave on dstack for fini.fs )
 forth definitions
