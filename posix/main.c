@@ -31,6 +31,10 @@
 #  define USER_WORDS
 # endif
 
+#if !defined(USER_VOCABULARIES)
+# define USER_VOCABULARIES
+#endif
+
 // NOTE: errno implemented as opcode to avoid a Linux platform dependency.
 
 #define PLATFORM_OPCODE_LIST \
@@ -40,7 +44,8 @@
   FLOATING_POINT_LIST \
   USER_WORDS
 
-#define VOCABULARY_LIST V(forth) V(internals)
+#define VOCABULARY_LIST V(forth) V(internals) \
+       USER_VOCABULARIES
 
 #include "common/bits.h"
 #include "common/core.h"
