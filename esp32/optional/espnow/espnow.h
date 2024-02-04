@@ -65,5 +65,6 @@ static esp_err_t EspnowRegisterCb(cell_t xt) {
   YV(espnow, espnow_send    , n0 = esp_now_send(b2, b1, n0); NIPn(2)) \
   YV(espnow, espnow_register_recv_cb , espnow_recv_cb_xt = n0; n0 = esp_now_register_recv_cb(HandleRecv))  \
   YV(espnow, espnow_unregister_recv_cb , PUSH esp_now_unregister_recv_cb())  \
+  YV(espnow, ESP_NOW_MAX_DATA_LEN, PUSH ESP_NOW_MAX_DATA_LEN ) \
 
 #include "gen/esp32_espnow.h"
